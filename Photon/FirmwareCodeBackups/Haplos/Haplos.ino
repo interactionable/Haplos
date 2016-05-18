@@ -1,11 +1,19 @@
-#include "simple-OSC.h"
+/* VERSION HISTORY
 
+160518-16.43: Can receive an OSC message and respond with a LED blink but unable to differentiate between different OSC messages. About to try a different OSC implementation (sparkcore_osc)
+
+*/
+
+#include "OSCMessage.h"
 UDP udp;
 
+
 const IPAddress OUT_IP(172, 20, 10, 2);
-const unsigned int OUT_PORT = 7475;
-const unsigned int IN_PORT = 7475;
-const bool USING_SIMPLE_OSC = true;
+IPAddress PHOTON_IP;
+const unsigned int REMOTEPORT = 7475;
+const unsigned int LOCALPORT = 7475;
+const bool USING_SIMPLE_OSC = false;
+bool motorOn = 0;
 
 int led1 = D0;
 
@@ -14,7 +22,7 @@ void setup()
 {
     /* Network setup */
     Serial.begin(9600);
-    udp.begin(IN_PORT);
+    udp.begin(LOCALPORT);
 
     while (!WiFi.ready())
     {
@@ -24,9 +32,9 @@ void setup()
     Serial.println("");
     Serial.println("WiFi connected");
 
-    IPAddress photonIP = WiFi.localIP();
+    IPAddress PHOTON_IP = WiFi.localIP();
 
-    sendPhotonIDToComputer("/photonip", photonIP);
+    sendPhotonIDToComputer("/photonip", PHOTON_IP);
 
     /* Actuator/LED setup */
     pinMode(led1, OUTPUT);
@@ -34,21 +42,18 @@ void setup()
 
 }
 
-void sendPhotonIDToComputer(String addr, IPAddress ip){
-  Serial.print(F("Photon IP : ")); Serial.print(ip);
-  Serial.print(F(" : ")); Serial.print(IN_PORT);
+void sendPhotonIDToComputer(String addr, IPAddress photon_ip){
+  Serial.print(F("Photon IP : "));
+  Serial.print(photon_ip);
+  Serial.print(F(" : "));
+  Serial.print(LOCALPORT);
 
-  if (USING_SIMPLE_OSC)
-  {
-    OSCMessage outMessage(addr);
-    outMessage.addInt(ip[0]);
-    outMessage.addInt(ip[1]);
-    outMessage.addInt(ip[2]);
-    outMessage.addInt(ip[3]);
-    outMessage.send(udp,OUT_IP,OUT_PORT);
-  }
+  OSCMessage PhotonIPMessage(addr);
+  PhotonIPMessage.add(photon_ip[0]).add(photon_ip[1]).add(photon_ip[2]).add(photon_ip[3]);
+  udp.beginPacket(OUT_IP, REMOTEPORT);
+	PhotonIPMessage.send(udp);
+	udp.endPacket();
 }
-
 
 
 void loop()
@@ -57,34 +62,29 @@ void loop()
     //RECEIVE
     int size = 0;
     OSCMessage inMessage;
+
     if ( ( size = udp.parsePacket()) > 0)
     {
         while (size--)
         {
             inMessage.fill(udp.read());
         }
-        if( inMessage.parse())
-        {
-            //inMessage.route("/ping", PING);
-            Serial.println(inMessage.getFloat(0));
-        }
-
-        // I received something! Blink!
-        digitalWrite(led1, HIGH);
-        delay(200);
-        digitalWrite(led1, LOW);
-
+        //Figure out where the message is to turn the motor on or off
+        if (inMessage.getFloat(0) == 1.0){
+          motorOn = true; digitalWrite(led1, HIGH);
+          Serial.print(F("Button ON!"));
+          }
+        else if  (inMessage.getFloat(0) == 0.0){
+          motorOn = false; digitalWrite(led1, LOW);
+          Serial.print(F("Button off"));}
     }
+
+
 
     //SEND
     /*OSCMessage outMessage("/pong");
     outMessage.addString("test");
     outMessage.addFloat(-3.14);
     outMessage.addInt(-1);
-    outMessage.send(udp,OUT_IP,OUT_PORT);*/
-}
-
-void PING(OSCMessage &inMessage)
-{
-    //Do something
+    outMessage.send(udp,OUT_IP,REMOTEPORT);*/
 }
