@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Button</title>
+		<script type="text/javascript" src="../lib/nexusUI.js"></script>
+		<script>
+
+			nx.onload = function() {
+
+				//send to ajax and devine php relay script path
+				nx.sendsTo("ajax");
+				nx.setAjaxPath("../lib/nexusOSCrelay.php");
+
+				// sets a mode for each button. default is toggle.
+				button1.mode = "impulse";
+				button2.mode = "toggle";							button3.mode = "node";
+
+			}
+
+		</script>
+
+	</head>
+	<body>
+		This file needs to be served by a server (e.g., "http://localhost/NexusOSCWebApps_MustBeRunFromAWebServer/WebButton/")<br/><br/><br/>
+		<canvas nx="button" height="50px">Button</canvas><br/>This is an 'impulse'-type button. When you tap it, the library sends out a single OSC message.<br/>
+<canvas nx="button" height="75px">Button</canvas><br/>This is a 'canvas'-type button. When you press it, the library sends out a single OSC message. When you release the button, another message is sent. <br/>
+<canvas nx="button" height="120px">Button</canvas><br/>This is an 'node'-type button. When you press it, the library sends out a single OSC message. With your finger on the button, you can move it around. As you do, OSC messages are sent indicating where your finger is using an (x, y) coordinate system. When you finally release the button, another message is sent. <br/>
+	</body>
+</html>
