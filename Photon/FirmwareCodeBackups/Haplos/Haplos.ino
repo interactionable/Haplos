@@ -13,9 +13,14 @@ IPAddress PHOTON_IP;
 const unsigned int REMOTEPORT = 7475;
 const unsigned int LOCALPORT = 7475;
 const bool USING_SIMPLE_OSC = false;
+const int PIN_COUNT = 7;           // the number of pins (i.e. the length of the array)
+
 bool motorOn = 0;
 
-int led1 = D0;
+int ledPins[] = {
+  D0, D1, D2, D3, WKP, RX, TX
+};       // an array of pin numbers to which LEDs are attached
+
 
 
 void setup()
@@ -37,7 +42,9 @@ void setup()
     sendPhotonIDToComputer("/photonip", PHOTON_IP);
 
     /* Actuator/LED setup */
-    pinMode(led1, OUTPUT);
+    for (int i = 0; i < PIN_COUNT; i++)
+      pinMode(ledPins[i], OUTPUT);
+
 
 
 }
@@ -61,6 +68,8 @@ void loop()
 
     //RECEIVE
     int size = 0;
+    int i = 0;
+
     OSCMessage inMessage;
 
     if ( ( size = udp.parsePacket()) > 0)
@@ -69,14 +78,23 @@ void loop()
         {
             inMessage.fill(udp.read());
         }
+
+        if (inMessage.fullMatch("/button1/press")) i = 0;
+        else if (inMessage.fullMatch("/button2/press")) i = 1;
+        else if (inMessage.fullMatch("/button3/press")) i = 2;
+        else if (inMessage.fullMatch("/button4/press")) i = 3;
+        else if (inMessage.fullMatch("/button5/press")) i = 4;
+        else if (inMessage.fullMatch("/button6/press")) i = 5;
+        else if (inMessage.fullMatch("/button7/press")) i = 6;
+
         //Figure out where the message is to turn the motor on or off
         if (inMessage.getFloat(0) == 1.0){
-          motorOn = true; digitalWrite(led1, HIGH);
-          Serial.print(F("Button ON!"));
+          motorOn = true; digitalWrite(ledPins[i], HIGH);
+          Serial.print("Button ON!");
           }
         else if  (inMessage.getFloat(0) == 0.0){
-          motorOn = false; digitalWrite(led1, LOW);
-          Serial.print(F("Button off"));}
+          motorOn = false; digitalWrite(ledPins[i], LOW);
+          Serial.print("Button off");}
     }
 
 
