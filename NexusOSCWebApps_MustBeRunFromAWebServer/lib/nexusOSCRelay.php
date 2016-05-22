@@ -31,7 +31,7 @@ $photon_name=$_POST["oscName"];	/* Get osc name to use as the osc message */
 
 $photon_ip=$_POST["oscIp"];	/* If an osc_ip is posted as well, use that ip, otherwise, default to localhost */
 if (is_null($photon_ip))
-	$photon_ip= '172.20.10.6'; /*'127.0.0.1';*/
+	$photon_ip= '192.168.1.12';//'172.20.10.6'; /*'127.0.0.1';*/
 
 							/* Relay the OSC message */
 $c = new OSCClient();

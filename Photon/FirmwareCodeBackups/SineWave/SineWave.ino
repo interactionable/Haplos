@@ -5,11 +5,10 @@
 
 int timer = 10;           // The higher the number, the slower the timing.
 int ledPins[] = {
-  D0, D1, D2, D3, WKP, RX
+  WKP, RX, TX, D0, D1, D2, D3
 };       // an array of pin numbers to which LEDs are attached
-int intensity[] = {0, 51, 102, 154, 205, 255};
-int fade[] = {1, 1, 1, 1, 1, 1};
-int pinCount = 6;           // the number of pins (i.e. the length of the array)
+int intensity[] = {0, 43, 85, 128, 170, 213, 255};
+int pinCount = 7;           // the number of pins (i.e. the length of the array)
 
 const int P_SINE = 0;
 const int P_1_FINGER_STROKE = 1;
@@ -50,24 +49,10 @@ void loop() {
 
 void updateValue(int i) {
 
-  /*
-      intensity[i] += fade[i];
-      if (intensity[i] <= 0 || intensity[i] >= (255 - fade[i] + 1))
-        fade[i] = -fade[i];
-  */
   float something = millis() / 100.0;
 
-  switch (pattern)
-  {
-    case P_SINE:
       // from http://forum.arduino.cc/index.php?topic=27475.0
       intensity[i] = 128.0 + 128 * sin(something + (i * 2.0 * PI / pinCount));
-      break;
-    case P_1_FINGER_STROKE:
-      break;
-    default:
-      break;
-  }
 
   // No Serial in photon, but also just Debug // Serial.println(intensity[i]);
 

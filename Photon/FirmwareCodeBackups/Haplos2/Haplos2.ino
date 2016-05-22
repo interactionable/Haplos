@@ -5,6 +5,7 @@
 */
 
 #include "OSCMessage.h"
+
 UDP udp;
 
 IPAddress PHOTON_IP;
@@ -40,7 +41,6 @@ void setup()
 }
 
 void sendPhotonIDToComputer(String addr, IPAddress photon_ip){
-  Serial.print("Entering sendPhotonIDToComputer()")
   //Serial.print(F("Photon IP : "));
   //Serial.print(photon_ip);
   Serial.print(F(" : "));
@@ -81,7 +81,7 @@ void loop()
           motorOn = false; digitalWrite(ledPins[i], LOW);
           Serial.print("Off: "); Serial.print(i);}
 
-    
+
     }
 
 
